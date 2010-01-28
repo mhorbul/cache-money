@@ -8,16 +8,30 @@ module Cash
       end
 
       def initialize(active_record, options1, options2)
+        if defined?(RAILS_DEFAULT_LOGGER)
+          RAILS_DEFAULT_LOGGER.debug("cache-money: active_record = #{active_record.inspect}")
+          RAILS_DEFAULT_LOGGER.debug("cache-money: options1 = #{options1.inspect}")
+          RAILS_DEFAULT_LOGGER.debug("cache-money: options2 = #{options2.inspect}")
+        end
         @active_record, @options1, @options2 = active_record, options1, options2 || {}
       end
 
       def perform(find_options = {}, get_options = {})
         if cache_config = cacheable?(@options1, @options2, find_options)
+          if defined?(RAILS_DEFAULT_LOGGER)
+            RAILS_DEFAULT_LOGGER.debug("cache-money: cache_config = #{cache_config.inspect}")
+          end
           cache_keys, index = cache_keys(cache_config[0]), cache_config[1]
 
           misses, missed_keys, objects = hit_or_miss(cache_keys, index, get_options)
-          format_results(cache_keys, choose_deserialized_objects_if_possible(missed_keys, cache_keys, misses, objects))
+          results = format_results(cache_keys, choose_deserialized_objects_if_possible(missed_keys, cache_keys, misses, objects))
+          if defined?(RAILS_DEFAULT_LOGGER)
+            RAILS_DEFAULT_LOGGER.debug("cache-money: results = #{results.inspect}")
+          end
         else
+          if defined?(RAILS_DEFAULT_LOGGER)
+            RAILS_DEFAULT_LOGGER.debug("cache-money: uncacheable")
+          end
           uncacheable
         end
       end
