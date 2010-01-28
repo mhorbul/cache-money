@@ -18,9 +18,6 @@ module Cash
 
       def perform(find_options = {}, get_options = {})
         if cache_config = cacheable?(@options1, @options2, find_options)
-          if defined?(RAILS_DEFAULT_LOGGER)
-            RAILS_DEFAULT_LOGGER.debug("cache-money: cache_config = #{cache_config.inspect}")
-          end
           cache_keys, index = cache_keys(cache_config[0]), cache_config[1]
 
           misses, missed_keys, objects = hit_or_miss(cache_keys, index, get_options)
@@ -28,6 +25,7 @@ module Cash
           if defined?(RAILS_DEFAULT_LOGGER)
             RAILS_DEFAULT_LOGGER.debug("cache-money: results = #{results.inspect}")
           end
+          results
         else
           if defined?(RAILS_DEFAULT_LOGGER)
             RAILS_DEFAULT_LOGGER.debug("cache-money: uncacheable")
